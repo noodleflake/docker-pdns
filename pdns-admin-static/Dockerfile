@@ -1,5 +1,8 @@
-FROM nginx:1.12-alpine
+FROM nginx:alpine
 MAINTAINER "Peter Schiffer" <pschiffe@redhat.com>
+
+ENV PDNS_ADMIN_UWSGI_HOST="localhost" \
+ PDNS_ADMIN_UWSGI_PORT=9494
 
 RUN apk add --no-cache curl
 
@@ -9,4 +12,9 @@ RUN mkdir -p /opt/powerdns-admin \
   && find /opt/powerdns-admin -path /opt/powerdns-admin/app/static -prune -o -type f -exec rm -f {} + \
   && chown -R root: /opt/powerdns-admin
 
-COPY pdns-nginx.conf /etc/nginx/conf.d/default.conf
+COPY pdns-nginx.template /etc/nginx/conf.d/default.template
+COPY start.sh /etc/nginx/start.sh
+
+RUN chmod +x /etc/nginx/start.sh
+
+CMD ["/etc/nginx/start.sh"]
